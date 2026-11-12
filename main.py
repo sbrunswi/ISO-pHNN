@@ -195,7 +195,7 @@ class Predictor(nn.Module):
             u = u.detach().numpy()
             u = self.scaler_u.transform(u)
         x = torch.tensor(x).float()
-        u = torch.tensor(u).float()
+        u = torch.as_tensor(u, dtype=torch.float32)
         xdot, y = self.model(x, u)
         if args.normalize_xdot:
             xdot = xdot.detach().cpu().numpy()

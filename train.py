@@ -34,6 +34,7 @@ def train(model, train_loader, val_loader, epochs, output_weight=0.25, loss_fn="
         validation_frequency = 10**100
     device = torch.device(device)
     model.to(device)
+    print("Training device:", next(model.parameters()).device)
 
     # --- loss function (hard-coded options) ---
     if loss_fn == "mse":
