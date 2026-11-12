@@ -1,0 +1,9 @@
+torch>=2.2
+mlflow>=2.12
+numpy
+scipy
+scikit-learn
+matplotlib
+jupyter
+pandas
+tqdm

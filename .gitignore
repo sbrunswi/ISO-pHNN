@@ -5,7 +5,11 @@ mlflow.db
 mlruns/
 
 # Experiment outputs
-results/
+#results/
+
+# Experiment outputs - sabine
+experiments-PH-SINDY/archive
+experiments-PH-SINDY/data
 
 # Python bytecode caches
 __pycache__/
@@ -13,3 +17,7 @@ __pycache__/
 
 scaling_figs.py
 scaling.ipynb
+
+
+# environments
+.venv

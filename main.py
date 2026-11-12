@@ -252,7 +252,24 @@ else:
     model = PHNNModel(DIM, args.hidden_dim, args.depth, J=args.J, R=args.R, grad_H=args.grad_H, G=args.G,
                         excitation=args.excitation, u_dim=sigs)
 print("Parameters:", sum(p.numel() for p in model.parameters()))
-train(model, train_loader, val_loader, args.epochs, args.output_weight, loss_fn=args.criterion, device=args.device, weight_decay=args.weight_decay, validation_frequency=args.validation_frequency)
+history, training_seconds = train(
+    model,
+    train_loader,
+    val_loader,
+    args.epochs,
+    args.output_weight,
+    loss_fn=args.criterion,
+    device=args.device,
+    weight_decay=args.weight_decay,
+    validation_frequency=args.validation_frequency,
+    lr=args.lr,
+)
+
+print(
+    f"Training time: {training_seconds:.3f} s "
+    f"({training_seconds / 60.0:.3f} min)"
+)
+
 model = Predictor(model, scaler_X, scaler_u, scaler_xdot, scaler_y) # for eval
 
 
@@ -264,9 +281,42 @@ with mlflow.start_run(run_name=args.run_name, experiment_id=experiment_id):
         mlflow.set_tag("tag", args.tag)
 
     mlflow.log_params(vars(args))
-    mlflow.pytorch.autolog()
+    mlflow.log_metric(
+        "training_seconds",
+        float(training_seconds),
+    )
+    
+    mlflow.log_metric(
+        "training_minutes",
+        float(training_seconds / 60.0),
+    )
+    
+    if history:
+        mlflow.log_metric(
+            "final_train_loss",
+            history[-1]["loss_total"],
+        )
+    
+        mlflow.log_metric(
+            "final_train_xdot_loss",
+            history[-1]["loss_xdot"],
+        )
+    
+        mlflow.log_metric(
+            "final_train_y_loss",
+            history[-1]["loss_y"],
+        )
+    
+    mlflow.log_dict(
+        {"history": history},
+        "training_history.json",
+    )
     models.append(model)
-    mlflow.pytorch.log_model(model, "model")
+    mlflow.pytorch.log_model(
+        model,
+        name="model",
+        serialization_format="pickle",
+    )
     metrics = compute_metrics(models, dt, X_val, u_val, xdot_val, y_val, integrator=args.integrator)
     print(metrics)
 

@@ -3,8 +3,9 @@
 import math
 import torch
 from torch import nn
+from time import perf_counter
 
-def train(model, train_loader, val_loader, epochs, output_weight=0.25, loss_fn="normalized_mse", device=None, weight_decay=0.01, validation_frequency=None):
+def train(model, train_loader, val_loader, epochs, output_weight=0.25, loss_fn="normalized_mse", device=None, weight_decay=0.01, validation_frequency=None, lr=1e-3):
     """
     Train a model with a simple supervised objective on (xdot, y).
 
@@ -43,7 +44,7 @@ def train(model, train_loader, val_loader, epochs, output_weight=0.25, loss_fn="
         raise NotImplementedError("Loss function not implemented")
     from utils import normalized_mae as mae_fn
     # --- optimizer ---
-    optimizer = torch.optim.AdamW(model.get_params(), lr=1e-3, weight_decay=weight_decay)
+    optimizer = torch.optim.AdamW(model.get_params(), lr=lr, weight_decay=weight_decay)
 
     # --- scheduler: cosine with 10% warmup, per-step ---
     total_steps = epochs * max(1, len(train_loader))
@@ -63,6 +64,12 @@ def train(model, train_loader, val_loader, epochs, output_weight=0.25, loss_fn="
 
     step = 0
     model.train()
+    history = []
+    
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+    
+    train_start = perf_counter()
     for epoch in range(1, epochs + 1):
         running_xdot, running_y, running_total = 0.0, 0.0, 0.0
         for X, u, xdot, y in train_loader:
@@ -88,29 +95,68 @@ def train(model, train_loader, val_loader, epochs, output_weight=0.25, loss_fn="
             running_total += loss.item()
 
         n_batches = max(1, len(train_loader))
+
+        epoch_xdot = running_xdot / n_batches
+        epoch_y = running_y / n_batches
+        epoch_total = running_total / n_batches
+        current_lr = float(optimizer.param_groups[0]["lr"])
+
+        record = {
+            "epoch": int(epoch),
+            "loss_xdot": float(epoch_xdot),
+            "loss_y": float(epoch_y),
+            "loss_total": float(epoch_total),
+            "lr": current_lr,
+            "val_mae_xdot": None,
+        }
+
         log_parts = [
             f"Epoch {epoch}/{epochs}",
-            f"loss_xdot: {running_xdot / n_batches:.6f}",
-            f"loss_y: {running_y / n_batches:.6f}",
-            f"loss_total: {running_total / n_batches:.6f}",
+            f"loss_xdot: {epoch_xdot:.6f}",
+            f"loss_y: {epoch_y:.6f}",
+            f"loss_total: {epoch_total:.6f}",
+            f"lr: {current_lr:.8e}",
         ]
+
         if epoch % validation_frequency == 0:
             if val_loader is not None and len(val_loader) > 0:
                 xdot_cat = []
                 xdot_hat_cat = []
+
                 with torch.no_grad():
                     for X, u, xdot, y in val_loader:
                         X = X.float().to(device)
                         u = u.float().to(device)
                         xdot = xdot.float().to(device)
                         y = y.float().to(device)
+
                         xdot_hat, y_hat = model(X, u)
 
                         xdot_cat.append(xdot)
                         xdot_hat_cat.append(xdot_hat)
+
                 xdot_cat = torch.cat(xdot_cat, 0)
                 xdot_hat_cat = torch.cat(xdot_hat_cat, 0)
-                log_parts.append(f"val_mae_xdot: {mae_fn(xdot_hat_cat, xdot_cat):.6f}")
+
+                val_mae = float(
+                    mae_fn(xdot_hat_cat, xdot_cat)
+                )
+
+                record["val_mae_xdot"] = val_mae
+
+                log_parts.append(
+                    f"val_mae_xdot: {val_mae:.6f}"
+                )
+
+        history.append(record)
 
         print(" | ".join(log_parts))
+
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+    
+    training_seconds = perf_counter() - train_start
+
     model.train().cpu()
+
+    return history, training_seconds

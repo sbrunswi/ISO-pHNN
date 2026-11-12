@@ -186,14 +186,14 @@ class Dataset(torch.utils.data.Dataset):
         return self.X[idx], self.u[idx], self.xdot[idx], self.y[idx]
 
 
-def normalized_mse(x, target):
+def normalized_mse(x, target): #batch_size, state_dim
     """Compute normalized mean squared error."""
-    std = target.std()
+    std = target.std(dim=0) # Compute standard deviation along the batch dimension (columns): https://docs.pytorch.org/docs/2.15/generated/torch.std.html
     return ((x - target) / (std + 1e-6)).pow(2).mean()
 
-def normalized_mae(x, target):
+def normalized_mae(x, target): #batch_size, state_dim
     """Compute normalized mean absolute error."""
-    std = target.std()
+    std = target.std(dim=0) # Compute standard deviation along the batch dimension
     return ((x - target) / (std + 1e-6)).abs().mean()
 
 
