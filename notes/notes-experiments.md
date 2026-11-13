@@ -15,3 +15,9 @@
 | Learning rate | 0.001 |
 | Output loss weight | 0.25 |
 
+# key commands
+.venv/bin/mlflow ui \
+  --backend-store-uri sqlite:////Users/sbrunswi/projects/ISO-pHNN/experiments-PH-SINDY/results/20261112_172247/mlflow.db \
+  --port 5002
+
+
