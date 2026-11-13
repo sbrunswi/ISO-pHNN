@@ -10,6 +10,7 @@ mlruns/
 # Experiment outputs - sabine
 experiments-PH-SINDY/archive
 experiments-PH-SINDY/data
+experiments-PH-SINDY/results
 
 # Python bytecode caches
 __pycache__/
