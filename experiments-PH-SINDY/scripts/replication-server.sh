@@ -26,7 +26,7 @@ for N in 4 8 16 32 64; do
   --time 10 --steps 1000 \
   --val_time 100 --val_steps 10000 \
   --hidden_dim 16 --depth 3 \
-  --epochs 10 --batch_size 256 --lr 0.001 \
+  --epochs 4000 --batch_size 256 --lr 0.001 \
   --J default --R default --G mlp --grad_H gradient \
   --output-weight 0.25 --criterion normalized_mse \
   --seed 1000 --device cuda \

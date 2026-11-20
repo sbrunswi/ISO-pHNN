@@ -17,7 +17,9 @@
 
 # key commands
 .venv/bin/mlflow ui \
-  --backend-store-uri sqlite:////Users/sbrunswi/projects/ISO-pHNN/experiments-PH-SINDY/results/20261112_172247/mlflow.db \
+  --backend-store-uri sqlite:////home/techstor1/a/sbrunswi/projects/ISO-pHNN/experiments-PH-SINDY/results/20261112_223405/mlflow.db \
   --port 5002
+
+  http://127.0.0.1:5002
 
 
