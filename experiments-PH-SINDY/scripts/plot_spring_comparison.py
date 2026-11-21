@@ -10,6 +10,8 @@ import numpy as np
 # build a results table. extract _num_trajectories, seed, epocs, and mae_rel. convert parameter strings to numbers.
 # validate and summarize
 # plot and save figures
+# usage:
+# python plot_spring_comparison.py <results_dir>
 
 
 # 1. Select the results directory.

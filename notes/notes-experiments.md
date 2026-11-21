@@ -17,8 +17,8 @@
 
 # key commands
 .venv/bin/mlflow ui \
-  --backend-store-uri sqlite:////Users/sbrunswi/projects/ISO-pHNN/experiments-PH-SINDY/results/20261112_223405/mlflow.db \
-  --port 5002
+--backend-store-uri sqlite:////home/techstor1/a/sbrunswi/projects/ISO-pHNN/experiments-PH-SINDY/results/20261112_223405/mlflow.db \
+--port 5002
 # inspecting differences between results: 
 One important finding from reading the simulator: the current spring equations deserve comparison with the paper before further training. In data.py, the supplied input matrix acts on components 1 and 3, and the Hamiltonian coefficients contain an additional factor of one-half. These are concrete implementation details to investigate; they were not checked by our earlier array-shape tests. They could affect reproducibility, though we have not yet established that they explain your error gap.
 
@@ -29,4 +29,7 @@ These experiments use fixed width 16 and 4,000 epochs, whereas the paper’s sca
 CUDA_VISIBLE_DEVICES=1 \
 bash experiments-PH-SINDY/scripts/replication-ball-server.sh
 
+  http://127.0.0.1:5002
+
+# Issue with 
 
