@@ -89,3 +89,18 @@ fig.tight_layout()
 fig.savefig(output_dir / "spring_scaling.png", dpi=300)
 fig.savefig(output_dir / "spring_scaling.pdf")
 plt.close(fig)
+
+def main():
+    parser = argparse.ArgumentParser(
+    description="Plot spring validation error versus training trajectories."
+)
+
+parser.add_argument(
+    "results_dir",
+    type=Path,
+    help="Directory containing mlflow.db.",
+)
+
+if __name__ == "__main__":
+    main()
+    
