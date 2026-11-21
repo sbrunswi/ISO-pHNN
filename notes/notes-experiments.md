@@ -29,7 +29,6 @@ These experiments use fixed width 16 and 4,000 epochs, whereas the paper’s sca
 CUDA_VISIBLE_DEVICES=1 \
 bash experiments-PH-SINDY/scripts/replication-ball-server.sh
 
-  http://127.0.0.1:5002
-
-# Issue with 
+# Issue with motor: 
+Although the true motor Hamiltonian is quadratic, this repository comparison keeps a neural Hamiltonian through --grad_H gradient. That is intentional for matching that script.
 

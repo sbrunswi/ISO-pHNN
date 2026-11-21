@@ -43,27 +43,27 @@ DATASET="$OUT/data/${SYSTEM}_${N}train_100val_seed1000.npy"
   2>&1 | tee "$OUT/logs/default_n${N}_seed1000.log"
 done
 
-# prior model - J and G are learned constant matrices and the Hamiltonian is quadratic
+# Ball prior: learned constant J and G; neural R(x) and H(x).
 for N in 4 8 16 32 64; do
-DATASET="$DEFAULT_RESULTS/data/spring_${N}train_100val_seed1000.npy"
+DATASET="$OUT/data/${SYSTEM}_${N}train_100val_seed1000.npy"
 if [[ ! -f "$DATASET" ]]; then
   echo "Missing dataset: $DATASET" >&2
   exit 1
 fi
 
   "$PYTHON" -u main.py \
-    --name spring \
+    --name "$SYSTEM" \
     --num_trajectories "$N" --num_val_trajectories 100 \
     --time 10 --steps 1000 \
     --val_time 100 --val_steps 10000 \
     --hidden_dim 16 --depth 3 \
     --epochs 4000 --batch_size 256 --lr 0.001 \
-    --J linear --R default --G linear --grad_H linear \
+    --J linear --R default --G linear --grad_H gradient \
     --no-normalize-x \
     --output-weight 0.25 --criterion normalized_mse \
     --seed 1000 --device cuda \
     --dataset "$DATASET" \
-    --experiment spring_original_loss \
+    --experiment "${SYSTEM}_original_loss" \
     --run_name "prior_n${N}_seed1000" \
     --no-forecast \
     2>&1 | tee "$OUT/logs/prior_n${N}_seed1000.log"
