@@ -44,6 +44,13 @@ runs = mlflow.search_runs(
     filter_string="attributes.status = 'FINISHED'",
 )
 
+print("Database:", database)
+print("Experiment:", experiment_name)
+print(runs[
+    ["params.run_name", "params.num_trajectories",
+     "params.epochs", "metrics.mae_rel"]
+].to_string(index=False))
+
 # 3. Extract the values needed for plotting.
 columns = {
     "params.num_trajectories": "trajectories",
@@ -51,6 +58,8 @@ columns = {
     "params.epochs": "epochs",
     "metrics.mae_rel": "nmae",
 }
+
+
 
 table = runs[list(columns)].rename(columns=columns).copy()
 
@@ -60,6 +69,9 @@ table["model"] = runs["params.run_name"].str.extract(
 
 if table["model"].isna().any():
     raise ValueError("Some run names do not identify default or prior")
+
+for column in ["trajectories", "seed", "epochs", "nmae"]:
+    table[column] = pd.to_numeric(table[column], errors="raise")
 
 table = table.sort_values(["model", "trajectories"])
 
@@ -78,10 +90,15 @@ if not (
 ):
     raise ValueError("NMAE values must be finite and positive")
 
-# 4. Save the table and plot.
+# 4. Save the table and plot for each system in its folder. 
 output_dir = results_dir.parent / system / "figures_original_loss"
 output_dir.mkdir(parents=True, exist_ok=True)
 table.to_csv(output_dir / f"{system}_default_table.csv", index=False)
+
+print(table.groupby("model")["trajectories"].apply(list))
+
+if set(table["model"]) != {"default", "prior"}:
+    raise ValueError("Both default and prior results are required")
 
 fig, ax = plt.subplots(figsize=(4, 3.5))
 for model_name, group in table.groupby("model"):

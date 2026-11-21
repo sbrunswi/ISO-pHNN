@@ -8,9 +8,14 @@ mlruns/
 #results/
 
 # Experiment outputs - sabine
-experiments-PH-SINDY/archive
-experiments-PH-SINDY/data
-experiments-PH-SINDY/results
+experiments-PH-SINDY/results/**
+!experiments-PH-SINDY/results/**/
+!experiments-PH-SINDY/results/**/*.csv
+!experiments-PH-SINDY/results/**/*.png
+!experiments-PH-SINDY/results/**/*.pdf
+!experiments-PH-SINDY/results/**/*.eps
+
+experiments-PH-SINDY/results/tracking
 
 # Python bytecode caches
 __pycache__/
