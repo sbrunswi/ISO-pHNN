@@ -11,7 +11,7 @@ import numpy as np
 # validate and summarize
 # plot and save figures
 # usage:
-# python plot_results.py <results_dir>
+# python experiments-PH-SINDY/scripts/plot_results.py experiments-PH-SINDY/results/tracking/ --system motor
 
 
 # 1. Select the results directory.
